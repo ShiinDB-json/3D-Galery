@@ -173,7 +173,7 @@ export default function Gallery({ items, onSelect }) {
   const petalColors = ['#2EC4B6', '#3DE2D1', '#a8f0e8', '#7EDCD3', '#5EE8DB', '#6FD8C5']
 
   const waveRings = Array.from({ length: 6 }).map((_, i) => ({
-    color: items[i % 5].color,
+    color: items[i % items.length].color,
     position: [0, -2.2, 0],
   }))
 
@@ -182,7 +182,6 @@ export default function Gallery({ items, onSelect }) {
       <color attach="background" args={['#050f14']} />
       <fog attach="fog" args={['#050f14', 10, 35]} />
 
-      {/* Miku-themed lighting */}
       <ambientLight intensity={0.2} color="#0c2e30" />
       <pointLight position={[0, 8, 3]} intensity={1.8} color="#2EC4B6" distance={28} decay={2} />
       <pointLight position={[-6, 2, -4]} intensity={0.5} color="#0c7b77" distance={22} decay={2} />
@@ -193,14 +192,9 @@ export default function Gallery({ items, onSelect }) {
 
       <ParticleField count={150} color="#2EC4B6" />
 
-      {/* Reflective floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2.3, 0]}>
         <circleGeometry args={[radius + 10, 128]} />
-        <meshStandardMaterial
-          color="#050f12"
-          roughness={0.5}
-          metalness={0.3}
-        />
+        <meshStandardMaterial color="#050f12" roughness={0.5} metalness={0.3} />
       </mesh>
 
       {!reducedMotion && <CenterCrystal />}
@@ -255,16 +249,16 @@ export default function Gallery({ items, onSelect }) {
         </group>
       )}
 
-      {items.map((q, i) => {
+      {items.map((item, i) => {
         const angle = (i / count) * Math.PI * 2
         const x = Math.sin(angle) * radius
         const z = Math.cos(angle) * radius
         return (
           <>
-            <GlowRing key={`ring-${q.id}`} color={q.color} position={[x, -2.3, z]} />
+            <GlowRing key={`ring-${item.id}`} color={item.color} position={[x, -2.3, z]} />
             <GalleryItem
-              key={q.id}
-              quintuplet={q}
+              key={item.id}
+              quintuplet={item}
               position={[x, 0, z]}
               rotationY={angle + Math.PI}
               onSelect={onSelect}

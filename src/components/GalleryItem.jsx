@@ -47,7 +47,7 @@ function buildTexture(ctx, w, h, color, name, kanji) {
 
   ctx.font = '600 22px sans-serif'
   ctx.fillStyle = 'rgba(255,255,255,0.35)'
-  ctx.fillText('♪ Nakano × Miku', w / 2, h / 2 + 90)
+  ctx.fillText('♪ Nakano Miku', w / 2, h / 2 + 90)
 
   ctx.fillStyle = 'rgba(255,255,255,0.15)'
   ctx.fillRect(0, h - 3, w, 3)
@@ -60,7 +60,7 @@ export default function GalleryItem({ quintuplet, position, rotationY, onSelect,
   const [imgError, setImgError] = useState(false)
 
   const cid = quintuplet.characterId || quintuplet.id
-  const kanji = cid === 1 ? '一花' : cid === 2 ? '二乃' : cid === 3 ? '三玖' : cid === 4 ? '四葉' : '五珠'
+  const kanji = '三玖'
 
   const fallbackTexture = useMemo(() => {
     const canvas = document.createElement('canvas')
