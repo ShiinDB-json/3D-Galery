@@ -1,14 +1,13 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { OrbitControls, MeshReflectorMaterial, Environment } from '@react-three/drei'
+import { OrbitControls, Environment } from '@react-three/drei'
 import GalleryItem from './GalleryItem'
 import { DoubleSide } from 'three'
 
-// Wave particles — Miku-inspired equalizer bars
+// Wave equalizer bars
 function WaveParticle({ position, height, color, speed, phase }) {
   const mesh = useRef()
   const baseH = height
-
   useFrame((state) => {
     if (!mesh.current) return
     const t = state.clock.getElapsedTime()
@@ -18,7 +17,6 @@ function WaveParticle({ position, height, color, speed, phase }) {
     mesh.current.position.y = position[1] - (baseH - h) * 0.5
     mesh.current.material.opacity = 0.08 + wave * 0.12
   })
-
   return (
     <mesh ref={mesh} position={position}>
       <boxGeometry args={[0.04, baseH, 0.04]} />
@@ -27,11 +25,10 @@ function WaveParticle({ position, height, color, speed, phase }) {
   )
 }
 
-// Sound wave ring — expands outward
+// Sound wave rings
 function SoundWaveRing({ color, position, maxRadius }) {
   const ring = useRef()
   const startTime = useRef(Math.random() * 10)
-
   useFrame((state) => {
     if (!ring.current) return
     const elapsed = state.clock.getElapsedTime() - startTime.current
@@ -40,7 +37,6 @@ function SoundWaveRing({ color, position, maxRadius }) {
     ring.current.material.opacity = (1 - progress) * 0.12
     if (progress > 0.99) startTime.current = elapsed
   })
-
   return (
     <mesh ref={ring} position={position} rotation={[-Math.PI / 2, 0, 0]}>
       <ringGeometry args={[0.1, 0.12, 64]} />
@@ -49,11 +45,10 @@ function SoundWaveRing({ color, position, maxRadius }) {
   )
 }
 
-// Floating petal with wind physics — teal tinted
+// Floating petal
 function Petal({ position, rotation, scale, color, speed, delay }) {
   const mesh = useRef()
   const windOffset = useRef(Math.random() * Math.PI * 2)
-
   useFrame((state) => {
     if (!mesh.current) return
     const t = state.clock.getElapsedTime() + delay
@@ -71,7 +66,6 @@ function Petal({ position, rotation, scale, color, speed, delay }) {
       windOffset.current = Math.random() * Math.PI * 2
     }
   })
-
   return (
     <mesh ref={mesh} position={position} rotation={rotation} scale={scale}>
       <planeGeometry args={[0.14, 0.18]} />
@@ -80,7 +74,7 @@ function Petal({ position, rotation, scale, color, speed, delay }) {
   )
 }
 
-// Glowing ring around each item
+// Glowing ring
 function GlowRing({ color, position }) {
   const ring = useRef()
   useFrame((state) => {
@@ -97,7 +91,7 @@ function GlowRing({ color, position }) {
   )
 }
 
-// Floating ambient orb
+// Ambient orb
 function AmbientOrb({ position, color, size }) {
   const orb = useRef()
   useFrame((state) => {
@@ -114,7 +108,7 @@ function AmbientOrb({ position, color, size }) {
   )
 }
 
-// Central Miku crystal
+// Central Miku crystal with orbiting ring
 function CenterCrystal() {
   const crystal = useRef()
   const ring = useRef()
@@ -178,7 +172,7 @@ export default function Gallery({ quintuplets, onSelect }) {
 
   const petalColors = ['#2EC4B6', '#3DE2D1', '#a8f0e8', '#7EDCD3', '#5EE8DB', '#6FD8C5']
 
-  const waveRings = Array.from({ length: 8 }).map((_, i) => ({
+  const waveRings = Array.from({ length: 6 }).map((_, i) => ({
     color: quintuplets[i % 5].color,
     position: [0, -2.2, 0],
   }))
@@ -197,23 +191,15 @@ export default function Gallery({ quintuplets, onSelect }) {
       <pointLight position={[-3, 5, 5]} intensity={0.3} color="#ff6b8a" distance={18} decay={2} />
       <Environment preset="night" />
 
-      {!reducedMotion && <ParticleField count={200} color="#2EC4B6" />}
+      <ParticleField count={150} color="#2EC4B6" />
 
       {/* Reflective floor */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2.3, 0]}>
         <circleGeometry args={[radius + 10, 128]} />
-        <MeshReflectorMaterial
-          blur={[400, 150]}
-          resolution={1024}
-          mixBlur={1}
-          mixStrength={25}
-          roughness={1}
-          depthScale={1.2}
-          minDepthThreshold={0.3}
-          maxDepthThreshold={1.5}
+        <meshStandardMaterial
           color="#050f12"
-          metalness={0.15}
-          mirror={0.8}
+          roughness={0.5}
+          metalness={0.3}
         />
       </mesh>
 
@@ -229,11 +215,11 @@ export default function Gallery({ quintuplets, onSelect }) {
 
       {!reducedMotion && (
         <group>
-          {Array.from({ length: 30 }).map((_, i) => (
+          {Array.from({ length: 24 }).map((_, i) => (
             <WaveParticle
               key={`wave-${i}`}
-              position={[(i - 15) * 0.3, -2.25, -5]}
-              height={0.3 + Math.random() * 0.8}
+              position={[(i - 12) * 0.35, -2.25, -5]}
+              height={0.3 + Math.random() * 0.7}
               color={petalColors[i % petalColors.length]}
               speed={1.5 + Math.random() * 2}
               phase={i * 0.4}
@@ -244,7 +230,7 @@ export default function Gallery({ quintuplets, onSelect }) {
 
       {!reducedMotion && (
         <group>
-          {Array.from({ length: 30 }).map((_, i) => (
+          {Array.from({ length: 20 }).map((_, i) => (
             <Petal
               key={i}
               position={[(Math.random() - 0.5) * 20, Math.random() * 14 - 2, (Math.random() - 0.5) * 16]}
@@ -263,7 +249,6 @@ export default function Gallery({ quintuplets, onSelect }) {
           <AmbientOrb position={[-3, 2, -2]} color="#2EC4B6" size={0.15} />
           <AmbientOrb position={[3, 3, -3]} color="#3DE2D1" size={0.12} />
           <AmbientOrb position={[0, 4, 2]} color="#f0c27f" size={0.1} />
-          <AmbientOrb position={[-4, 1, 1]} color="#6a9a9a" size={0.08} />
           <AmbientOrb position={[5, 0, -1]} color="#ff6b8a" size={0.12} />
           <AmbientOrb position={[-2, 3, 3]} color="#a8f0e8" size={0.1} />
           <AmbientOrb position={[4, -1, -3]} color="#5EE8DB" size={0.09} />

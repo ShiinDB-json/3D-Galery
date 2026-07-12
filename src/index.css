@@ -4,21 +4,12 @@
   box-sizing: border-box;
 }
 
-html,
-body,
-#root {
+html, body, #root {
   height: 100%;
   width: 100%;
 }
 
 body {
-  background: #0a0b0f;
-  font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
-  -webkit-font-smoothing: antialiased;
+  background: #050f14;
   overflow: hidden;
-}
-
-:focus-visible {
-  outline: 2px solid #b8874a;
-  outline-offset: 2px;
 }

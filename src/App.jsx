@@ -4,7 +4,6 @@ import { Loader } from '@react-three/drei'
 import Gallery from './components/Gallery'
 import './App.css'
 
-// Nakano Quintuplets × Hatsune Miku fusion — teal-pink palette
 const QUINTUPLETS = [
   {
     id: 1,
@@ -14,7 +13,6 @@ const QUINTUPLETS = [
     accent: '#7EDCD3',
     detail: 'Yang tertua · Elegan & Berkelas',
     quote: '"Keindahan ada di dalam ketenangan."',
-    img: 'https://i.pinimg.com/736x/2e/7a/21/2e7a21c0d91bb67d836a23e320f7feb3.jpg',
     symbol: '♔',
   },
   {
@@ -25,7 +23,6 @@ const QUINTUPLETS = [
     accent: '#6FD8C5',
     detail: 'Yang kedua · Pemberani & Penuh Semangat',
     quote: '"Masakan terbaik untuk orang yang paling berharga."',
-    img: 'https://i.pinimg.com/736x/a3/1e/91/a31e91a79d4ac8e5b80b37e896c4a7e2.jpg',
     symbol: '♕',
   },
   {
@@ -36,7 +33,6 @@ const QUINTUPLETS = [
     accent: '#5EE8DB',
     detail: 'Yang ketiga · Tulus & Penuh Perasaan',
     quote: '"Di balik catatan tua, ada harapan yang tak pernah padam."',
-    img: 'https://i.pinimg.com/736x/c8/41/b5/c841b5d39b1d1db5c060fa6e9e0c9f9c.jpg',
     symbol: '♖',
   },
   {
@@ -47,7 +43,6 @@ const QUINTUPLETS = [
     accent: '#62ECD6',
     detail: 'Yang keempat · Ceria & Menyanyi Untukmu',
     quote: '"Nyanyian bisa menyatukan semua hati!"',
-    img: 'https://i.pinimg.com/736x/51/a2/f0/51a2f0e1f1e5c19b0c3f3c9f1a1c8e9d.jpg',
     symbol: '♗',
   },
   {
@@ -58,7 +53,6 @@ const QUINTUPLETS = [
     accent: '#4FD8CE',
     detail: 'Yang termuda · Cerdas & Teliti',
     quote: '"Setiap nada punya arti, setiap kata punya makna."',
-    img: 'https://i.pinimg.com/736x/d4/5e/8a/d45e8a6b0c1e2f3a4b5c6d7e8f9a0b1c.jpg',
     symbol: '♘',
   },
 ]
@@ -179,8 +173,36 @@ export default function App() {
               <span className="deco-note">♪</span>
             </div>
             <div className="modal-image">
-              <img src={selected.img} alt={selected.title} />
-              <div className="modal-image-overlay" style={{ background: `radial-gradient(ellipse at 30% 20%, ${selected.color}15, transparent 70%)` }} />
+              <div
+                className="modal-placeholder"
+                style={{
+                  background: `linear-gradient(135deg, ${selected.color}40, ${selected.color}10, ${selected.color}30)`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexDirection: 'column',
+                  gap: '0.5rem',
+                  width: '100%',
+                  height: '100%',
+                }}
+              >
+                <span style={{ fontSize: '4rem', filter: 'drop-shadow(0 0 20px rgba(255,255,255,0.2))' }}>
+                  {selected.symbol}
+                </span>
+                <span style={{ fontSize: '2.5rem', fontWeight: 700, color: 'rgba(255,255,255,0.9)', fontFamily: 'serif' }}>
+                  {kanji(selected.id)}
+                </span>
+                <span style={{ fontSize: '1rem', fontWeight: 300, color: 'rgba(255,255,255,0.6)' }}>
+                  {selected.name}
+                </span>
+                <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)', marginTop: '1rem' }}>
+                  ♪ Nakano × Miku
+                </span>
+              </div>
+              <div
+                className="modal-image-overlay"
+                style={{ background: `radial-gradient(ellipse at 30% 20%, ${selected.color}15, transparent 70%)` }}
+              />
             </div>
             <div className="modal-info">
               <button className="close-btn" onClick={() => setSelected(null)} aria-label="Tutup">

@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { useTexture, Text, useCursor } from '@react-three/drei'
+import { Text, useCursor } from '@react-three/drei'
 import { MathUtils, DoubleSide } from 'three'
 
 const FRAME_W = 2.5
@@ -13,11 +13,69 @@ const CORNERS = [
   [FRAME_W / 2 - 0.12, -FRAME_H / 2 + 0.12],
 ]
 
+function buildTexture(ctx, w, h, color, name, kanji) {
+  const hex = color.replace('#', '')
+  const r = parseInt(hex.substring(0, 2), 16)
+  const g = parseInt(hex.substring(2, 4), 16)
+  const b = parseInt(hex.substring(4, 6), 16)
+
+  const grad = ctx.createLinearGradient(0, 0, w, h)
+  grad.addColorStop(0, `rgb(${r},${g},${b})`)
+  grad.addColorStop(0.5, `rgb(${Math.min(255, r + 40)},${Math.min(255, g + 40)},${Math.min(255, b + 40)})`)
+  grad.addColorStop(1, `rgb(${Math.min(255, r + 80)},${Math.min(255, g + 80)},${Math.min(255, b + 80)})`)
+  ctx.fillStyle = grad
+  ctx.fillRect(0, 0, w, h)
+
+  // decorative circles
+  ctx.globalAlpha = 0.08
+  for (let i = 0; i < 6; i++) {
+    ctx.beginPath()
+    ctx.arc(Math.random() * w, Math.random() * h, 20 + Math.random() * 80, 0, Math.PI * 2)
+    ctx.fillStyle = '#fff'
+    ctx.fill()
+  }
+  ctx.globalAlpha = 1
+
+  // kanji large
+  ctx.fillStyle = 'rgba(255,255,255,0.9)'
+  ctx.font = '700 120px serif'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText(kanji, w / 2, h / 2 - 40)
+
+  // name
+  ctx.font = '300 30px sans-serif'
+  ctx.fillStyle = 'rgba(255,255,255,0.6)'
+  ctx.fillText(name, w / 2, h / 2 + 50)
+
+  // symbol + miku text
+  ctx.font = '600 22px sans-serif'
+  ctx.fillStyle = 'rgba(255,255,255,0.35)'
+  ctx.fillText('♪ Nakano × Miku', w / 2, h / 2 + 90)
+
+  // bottom bar accent
+  ctx.fillStyle = 'rgba(255,255,255,0.15)'
+  ctx.fillRect(0, h - 3, w, 3)
+}
+
 export default function GalleryItem({ quintuplet, position, rotationY, onSelect, reducedMotion }) {
   const group = useRef()
   const [hovered, setHovered] = useState(false)
   const [clicked, setClicked] = useState(false)
-  const texture = useTexture(quintuplet.img)
+
+  // Create an inline texture from canvas — no external images needed
+  const inlineTexture = useMemo(() => {
+    const canvas = document.createElement('canvas')
+    canvas.width = 512
+    canvas.height = 512
+    const ctx = canvas.getContext('2d')
+    const kanji = quintuplet.id === 1 ? '一花' : quintuplet.id === 2 ? '二乃' : quintuplet.id === 3 ? '三玖' : quintuplet.id === 4 ? '四葉' : '五珠'
+    buildTexture(ctx, 512, 512, quintuplet.color, quintuplet.name, kanji)
+    return new THREE.CanvasTexture(canvas)
+  }, [quintuplet.color, quintuplet.name, quintuplet.id])
+
+  const kanji = quintuplet.id === 1 ? '一花' : quintuplet.id === 2 ? '二乃' : quintuplet.id === 3 ? '三玖' : quintuplet.id === 4 ? '四葉' : '五珠'
+
   useCursor(hovered ? 'pointer' : 'grab')
 
   useFrame((state) => {
@@ -38,8 +96,6 @@ export default function GalleryItem({ quintuplet, position, rotationY, onSelect,
       group.current.rotation.z = MathUtils.lerp(group.current.rotation.z, 0, 0.1)
     }
   })
-
-  const kanji = quintuplet.id === 1 ? '一花' : quintuplet.id === 2 ? '二乃' : quintuplet.id === 3 ? '三玖' : quintuplet.id === 4 ? '四葉' : '五珠'
 
   return (
     <group position={position} rotation={[0, rotationY, 0]}>
@@ -74,10 +130,10 @@ export default function GalleryItem({ quintuplet, position, rotationY, onSelect,
           <meshStandardMaterial color={hovered ? '#e0f2f0' : '#e5ede9'} roughness={0.9} metalness={0} />
         </mesh>
 
-        {/* Image */}
+        {/* Image — generated from canvas */}
         <mesh position={[0, 0, 0.01]}>
           <planeGeometry args={[FRAME_W - 0.25, FRAME_H - 0.25]} />
-          <meshBasicMaterial map={texture} toneMapped={false} />
+          <meshBasicMaterial map={inlineTexture} toneMapped={false} />
         </mesh>
 
         {/* Specular highlight on hover */}
