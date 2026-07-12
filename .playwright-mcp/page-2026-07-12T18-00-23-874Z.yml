@@ -1,0 +1,32 @@
+- generic [ref=f1e3]:
+  - generic:
+    - generic: 🎵
+    - generic: 🎶
+    - generic: ♪
+    - generic: ♩
+    - generic: ♬
+  - generic [ref=f1e4]:
+    - generic [ref=f1e5]:
+      - generic [ref=f1e6]: 🎵
+      - generic [ref=f1e7]:
+        - text: Nakano ×
+        - emphasis [ref=f1e8]: Miku
+    - paragraph [ref=f1e11]: 五等分の花嫁 × 初音ミク
+  - banner:
+    - paragraph:
+      - generic: ♪
+      - text: Gotoubun no Hanayome × Hatsune Miku
+    - heading "Nakano Quintuplets" [level=1]:
+      - text: Nakano
+      - emphasis: Quintuplets
+    - paragraph: ♪ Album Foto 3D Interaktif ♪
+  - paragraph:
+    - text: ·
+    - generic: ♪
+    - text: seret untuk menjelajah gulir untuk mendekat klik bingkai
+  - navigation "Quick navigation":
+    - generic "Lihat Ichika" [ref=f1e15] [cursor=pointer]
+    - generic "Lihat Nino" [ref=f1e16] [cursor=pointer]
+    - generic "Lihat Miko" [ref=f1e17] [cursor=pointer]
+    - generic "Lihat Yotsuba" [ref=f1e18] [cursor=pointer]
+    - generic "Lihat Itsuki" [ref=f1e19] [cursor=pointer]

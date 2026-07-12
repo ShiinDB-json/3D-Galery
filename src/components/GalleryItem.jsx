@@ -1,6 +1,6 @@
 import { useRef, useState, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { Text, useCursor } from '@react-three/drei'
+import { useTexture, Text, useCursor } from '@react-three/drei'
 import { MathUtils, DoubleSide, CanvasTexture } from 'three'
 
 const FRAME_W = 2.5
@@ -26,7 +26,6 @@ function buildTexture(ctx, w, h, color, name, kanji) {
   ctx.fillStyle = grad
   ctx.fillRect(0, 0, w, h)
 
-  // decorative circles
   ctx.globalAlpha = 0.08
   for (let i = 0; i < 6; i++) {
     ctx.beginPath()
@@ -36,24 +35,20 @@ function buildTexture(ctx, w, h, color, name, kanji) {
   }
   ctx.globalAlpha = 1
 
-  // kanji large
   ctx.fillStyle = 'rgba(255,255,255,0.9)'
   ctx.font = '700 120px serif'
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
   ctx.fillText(kanji, w / 2, h / 2 - 40)
 
-  // name
   ctx.font = '300 30px sans-serif'
   ctx.fillStyle = 'rgba(255,255,255,0.6)'
   ctx.fillText(name, w / 2, h / 2 + 50)
 
-  // symbol + miku text
   ctx.font = '600 22px sans-serif'
   ctx.fillStyle = 'rgba(255,255,255,0.35)'
   ctx.fillText('♪ Nakano × Miku', w / 2, h / 2 + 90)
 
-  // bottom bar accent
   ctx.fillStyle = 'rgba(255,255,255,0.15)'
   ctx.fillRect(0, h - 3, w, 3)
 }
@@ -62,19 +57,25 @@ export default function GalleryItem({ quintuplet, position, rotationY, onSelect,
   const group = useRef()
   const [hovered, setHovered] = useState(false)
   const [clicked, setClicked] = useState(false)
+  const [imgError, setImgError] = useState(false)
 
-  // Create an inline texture from canvas — no external images needed
-  const inlineTexture = useMemo(() => {
+  const cid = quintuplet.characterId || quintuplet.id
+  const kanji = cid === 1 ? '一花' : cid === 2 ? '二乃' : cid === 3 ? '三玖' : cid === 4 ? '四葉' : '五珠'
+
+  const fallbackTexture = useMemo(() => {
     const canvas = document.createElement('canvas')
     canvas.width = 512
     canvas.height = 512
     const ctx = canvas.getContext('2d')
-    const kanji = quintuplet.id === 1 ? '一花' : quintuplet.id === 2 ? '二乃' : quintuplet.id === 3 ? '三玖' : quintuplet.id === 4 ? '四葉' : '五珠'
     buildTexture(ctx, 512, 512, quintuplet.color, quintuplet.name, kanji)
     return new CanvasTexture(canvas)
-  }, [quintuplet.color, quintuplet.name, quintuplet.id])
+  }, [quintuplet.color, quintuplet.name, cid])
 
-  const kanji = quintuplet.id === 1 ? '一花' : quintuplet.id === 2 ? '二乃' : quintuplet.id === 3 ? '三玖' : quintuplet.id === 4 ? '四葉' : '五珠'
+  const texture = useTexture(
+    imgError ? fallbackTexture : quintuplet.img,
+    (tex) => { tex.colorSpace = THREE.SRGBColorSpace },
+    () => setImgError(true)
+  )
 
   useCursor(hovered ? 'pointer' : 'grab')
 
@@ -107,7 +108,6 @@ export default function GalleryItem({ quintuplet, position, rotationY, onSelect,
         onPointerUp={() => setClicked(false)}
         onClick={(e) => { e.stopPropagation(); onSelect(quintuplet) }}
       >
-        {/* Outer glow on hover */}
         {hovered && (
           <>
             <pointLight position={[0, 0, 1.5]} intensity={2} color={quintuplet.color} distance={6} decay={2} />
@@ -118,25 +118,21 @@ export default function GalleryItem({ quintuplet, position, rotationY, onSelect,
           </>
         )}
 
-        {/* Polaroid frame backing — Miku white */}
         <mesh position={[0, -PADDING_B / 2, -0.05]}>
           <planeGeometry args={[FRAME_W + 0.06, FRAME_H + PADDING_B + 0.06]} />
           <meshStandardMaterial color={hovered ? '#e8f5f3' : '#e8f0ee'} roughness={0.75} metalness={0.03} />
         </mesh>
 
-        {/* Inner shadow frame */}
         <mesh position={[0, 0, -0.02]}>
           <planeGeometry args={[FRAME_W - 0.2, FRAME_H - 0.2]} />
           <meshStandardMaterial color={hovered ? '#e0f2f0' : '#e5ede9'} roughness={0.9} metalness={0} />
         </mesh>
 
-        {/* Image — generated from canvas */}
         <mesh position={[0, 0, 0.01]}>
           <planeGeometry args={[FRAME_W - 0.25, FRAME_H - 0.25]} />
-          <meshBasicMaterial map={inlineTexture} toneMapped={false} />
+          <meshBasicMaterial map={texture} toneMapped={false} />
         </mesh>
 
-        {/* Specular highlight on hover */}
         {hovered && (
           <mesh position={[0, FRAME_H / 4, 0.05]}>
             <planeGeometry args={[FRAME_W - 0.4, FRAME_H / 3]} />
@@ -144,7 +140,6 @@ export default function GalleryItem({ quintuplet, position, rotationY, onSelect,
           </mesh>
         )}
 
-        {/* Corner rivets — teal themed */}
         {CORNERS.map(([cx, cy], idx) => (
           <mesh key={idx} position={[cx, cy, -0.025]} rotation={[0, 0, Math.PI / 4]}>
             <boxGeometry args={[0.07, 0.07, 0.03]} />
@@ -152,7 +147,6 @@ export default function GalleryItem({ quintuplet, position, rotationY, onSelect,
           </mesh>
         ))}
 
-        {/* Name label */}
         <Text
           position={[0, -FRAME_H / 2 - 0.22, 0]}
           fontSize={0.11}
@@ -168,7 +162,6 @@ export default function GalleryItem({ quintuplet, position, rotationY, onSelect,
           {quintuplet.name} {kanji}
         </Text>
 
-        {/* Subtitle on hover */}
         {hovered && !reducedMotion && (
           <Text
             position={[0, -FRAME_H / 2 - 0.4, 0]}
@@ -184,7 +177,6 @@ export default function GalleryItem({ quintuplet, position, rotationY, onSelect,
           </Text>
         )}
 
-        {/* Miku music note on hover */}
         {hovered && !reducedMotion && (
           <Text
             position={[FRAME_W / 2 - 0.3, FRAME_H / 2 + 0.2, 0]}

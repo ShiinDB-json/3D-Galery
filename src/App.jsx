@@ -4,6 +4,7 @@ import { Loader } from '@react-three/drei'
 import Gallery from './components/Gallery'
 import './App.css'
 
+// All 23 photos mapped to the 5 characters
 const QUINTUPLETS = [
   {
     id: 1,
@@ -14,6 +15,13 @@ const QUINTUPLETS = [
     detail: 'Yang tertua · Elegan & Berkelas',
     quote: '"Keindahan ada di dalam ketenangan."',
     symbol: '♔',
+    images: [
+      'image/072203d90f1f0a8035295d89b807b661.jpg',
+      'image/1455aba60c3fbe322a26ccd13653321d.jpg',
+      'image/3916a80792867881f94656601edb52f6.jpg',
+      'image/808171f23595cd880d0ccbf88b50e6ca.jpg',
+      'image/a5006c18002f529b29e7fb532415a653.jpg',
+    ],
   },
   {
     id: 2,
@@ -24,6 +32,13 @@ const QUINTUPLETS = [
     detail: 'Yang kedua · Pemberani & Penuh Semangat',
     quote: '"Masakan terbaik untuk orang yang paling berharga."',
     symbol: '♕',
+    images: [
+      'image/09ed7487d4247be8c312d028b745bc6e.jpg',
+      'image/283cd79c4765ca0e852ec2ab18a97dc9.jpg',
+      'image/6994e653d7c31dc235581f3d0f28be54.jpg',
+      'image/9f2cc7b5111e1f983b8b250b93bd384d.jpg',
+      'image/acaf1af64ed5bc85448b13eea07f4836.jpg',
+    ],
   },
   {
     id: 3,
@@ -34,6 +49,13 @@ const QUINTUPLETS = [
     detail: 'Yang ketiga · Tulus & Penuh Perasaan',
     quote: '"Di balik catatan tua, ada harapan yang tak pernah padam."',
     symbol: '♖',
+    images: [
+      'image/8969dbb28abdfc2fe216561a10201d3c.jpg',
+      'image/98acccda21a1b1c5d555976a526218ab.jpg',
+      'image/d01daf9c9d9dac1823a19d1511dd94a3.jpg',
+      'image/e136dab9901bedb2f7517b3832c2651b.jpg',
+      'image/fe30f7efe021262b3dd4aba28e8edb23.jpg',
+    ],
   },
   {
     id: 4,
@@ -44,6 +66,12 @@ const QUINTUPLETS = [
     detail: 'Yang keempat · Ceria & Menyanyi Untukmu',
     quote: '"Nyanyian bisa menyatukan semua hati!"',
     symbol: '♗',
+    images: [
+      'image/d42f9706150b5c03f9773563f71aef35.jpg',
+      'image/illust_73805280_20260713_032120.jpg',
+      'image/illust_84036162_20260713_032008.jpg',
+      'image/illust_99666092_20260713_032032.jpg',
+    ],
   },
   {
     id: 5,
@@ -54,8 +82,30 @@ const QUINTUPLETS = [
     detail: 'Yang termuda · Cerdas & Teliti',
     quote: '"Setiap nada punya arti, setiap kata punya makna."',
     symbol: '♘',
+    images: [
+      'image/illust_145515972_20260713_032203.jpg',
+      'image/illust_145971603_20260713_032155.png',
+      'image/illust_81117837_20260713_031921.png',
+      'image/illust_83829282_20260713_032022.png',
+    ],
   },
 ]
+
+// Flatten into one list of items for the 3D gallery
+const ALL_ITEMS = QUINTUPLETS.flatMap((q, qi) =>
+  q.images.map((img, ii) => ({
+    id: `${q.id}-${ii + 1}`,
+    characterId: q.id,
+    name: q.name,
+    title: q.title,
+    color: q.color,
+    accent: q.accent,
+    detail: q.detail,
+    quote: q.quote,
+    symbol: q.symbol,
+    img: img,
+  }))
+)
 
 const MIKU_ICONS = ['🎵', '🎶', '♪', '♩', '♬']
 
@@ -99,7 +149,7 @@ export default function App() {
           <div className="loading-bar">
             <div className="loading-bar-fill" />
           </div>
-          <p className="loading-sub">五等分の花嫁 × 初音ミク</p>
+          <p className="loading-sub">五等分の花嫁 × 中野三玖</p>
         </div>
       )}
 
@@ -107,7 +157,7 @@ export default function App() {
       <header className="masthead">
         <p className="eyebrow">
           <span className="eyebrow-icon">♪</span>
-          Gotoubun no Hanayome × Hatsune Miku
+          Gotoubun no Hanayome × Nakano Miku
         </p>
         <h1>
           Nakano <em>Quintuplets</em>
@@ -125,7 +175,7 @@ export default function App() {
         gl={{ antialias: true, alpha: false }}
       >
         <Suspense fallback={null}>
-          <Gallery quintuplets={QUINTUPLETS} onSelect={setSelected} />
+          <Gallery items={ALL_ITEMS} onSelect={setSelected} />
         </Suspense>
       </Canvas>
 
@@ -143,14 +193,14 @@ export default function App() {
         seret untuk menjelajah &nbsp;&nbsp;gulir untuk mendekat &nbsp;&nbsp;klik bingkai
       </p>
 
-      {/* Side Navigation Dots */}
+      {/* Side Navigation Dots — one per character */}
       <nav className="nav-dots" aria-label="Quick navigation">
         {QUINTUPLETS.map((q) => (
           <div
             key={q.id}
-            className={`nav-dot ${selected?.id === q.id ? 'active' : ''}`}
-            style={{ borderColor: selected?.id === q.id ? q.color : undefined }}
-            onClick={() => setSelected(q)}
+            className={`nav-dot ${selected?.characterId === q.id ? 'active' : ''}`}
+            style={{ borderColor: selected?.characterId === q.id ? q.color : undefined }}
+            onClick={() => setSelected({ ...q, img: q.images[0] })}
             aria-label={`Lihat ${q.name}`}
           />
         ))}
@@ -159,7 +209,7 @@ export default function App() {
       {/* Music note indicator on active dot */}
       {selected && (
         <div className="active-indicator" style={{ color: selected.color }}>
-          {MIKU_ICONS[selected.id - 1]}
+          {MIKU_ICONS[(selected.characterId || selected.id) - 1]}
         </div>
       )}
 
@@ -173,32 +223,7 @@ export default function App() {
               <span className="deco-note">♪</span>
             </div>
             <div className="modal-image">
-              <div
-                className="modal-placeholder"
-                style={{
-                  background: `linear-gradient(135deg, ${selected.color}40, ${selected.color}10, ${selected.color}30)`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexDirection: 'column',
-                  gap: '0.5rem',
-                  width: '100%',
-                  height: '100%',
-                }}
-              >
-                <span style={{ fontSize: '4rem', filter: 'drop-shadow(0 0 20px rgba(255,255,255,0.2))' }}>
-                  {selected.symbol}
-                </span>
-                <span style={{ fontSize: '2.5rem', fontWeight: 700, color: 'rgba(255,255,255,0.9)', fontFamily: 'serif' }}>
-                  {kanji(selected.id)}
-                </span>
-                <span style={{ fontSize: '1rem', fontWeight: 300, color: 'rgba(255,255,255,0.6)' }}>
-                  {selected.name}
-                </span>
-                <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.3)', marginTop: '1rem' }}>
-                  ♪ Nakano × Miku
-                </span>
-              </div>
+              <img src={selected.img} alt={selected.title} />
               <div
                 className="modal-image-overlay"
                 style={{ background: `radial-gradient(ellipse at 30% 20%, ${selected.color}15, transparent 70%)` }}
@@ -209,7 +234,7 @@ export default function App() {
                 ✕
               </button>
               <span className="modal-plate" style={{ color: selected.color }}>
-                {selected.symbol} Nakano {kanji(selected.id)}
+                {selected.symbol} Nakano {kanji(selected.characterId || selected.id)}
               </span>
               <h2 style={{ color: selected.color }}>{selected.title}</h2>
               <p className="modal-detail">{selected.detail}</p>
@@ -217,8 +242,8 @@ export default function App() {
                 {selected.quote}
               </blockquote>
               <div className="modal-footer">
-                <span className="footer-note">🎵 Hatsune Miku × {selected.name}</span>
-                <span className="footer-miku">初音ミク</span>
+                <span className="footer-note">🎵 Nakano Miku × {selected.name}</span>
+                <span className="footer-miku">中野三玖</span>
               </div>
             </div>
           </div>

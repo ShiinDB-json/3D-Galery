@@ -161,9 +161,9 @@ function ParticleField({ count, color }) {
   )
 }
 
-export default function Gallery({ quintuplets, onSelect }) {
+export default function Gallery({ items, onSelect }) {
   const radius = 7.5
-  const count = quintuplets.length
+  const count = items.length
 
   const reducedMotion = useMemo(
     () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
@@ -173,7 +173,7 @@ export default function Gallery({ quintuplets, onSelect }) {
   const petalColors = ['#2EC4B6', '#3DE2D1', '#a8f0e8', '#7EDCD3', '#5EE8DB', '#6FD8C5']
 
   const waveRings = Array.from({ length: 6 }).map((_, i) => ({
-    color: quintuplets[i % 5].color,
+    color: items[i % 5].color,
     position: [0, -2.2, 0],
   }))
 
@@ -255,7 +255,7 @@ export default function Gallery({ quintuplets, onSelect }) {
         </group>
       )}
 
-      {quintuplets.map((q, i) => {
+      {items.map((q, i) => {
         const angle = (i / count) * Math.PI * 2
         const x = Math.sin(angle) * radius
         const z = Math.cos(angle) * radius
