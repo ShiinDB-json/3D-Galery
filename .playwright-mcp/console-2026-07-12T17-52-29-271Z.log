@@ -1,0 +1,28 @@
+[     265ms] [WARNING] <meta name="apple-mobile-web-app-capable" content="yes"> is deprecated. Please include <meta name="mobile-web-app-capable" content="yes"> @ https://3-d-galery-tau.vercel.app/:0
+[     432ms] [WARNING] [.WebGL-0x16fc00165a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels @ https://3-d-galery-tau.vercel.app/:0
+[     450ms] [WARNING] [.WebGL-0x16fc00165a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels @ https://3-d-galery-tau.vercel.app/:0
+[     612ms] [WARNING] [.WebGL-0x16fc00165a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels @ https://3-d-galery-tau.vercel.app/:0
+[     689ms] [WARNING] [.WebGL-0x16fc00165a00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat) @ https://3-d-galery-tau.vercel.app/:0
+[     731ms] ReferenceError: THREE is not defined
+    at https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:4249:12500
+    at Object.useMemo (https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:3911:101156)
+    at dn.useMemo (https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:17:7331)
+    at jz (https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:4249:12293)
+    at Vt (https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:3911:20387)
+    at Yf (https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:3911:38428)
+    at Hd (https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:3911:48737)
+    at Vo (https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:3911:84400)
+    at Ig (https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:3911:83401)
+    at Ns (https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:3911:83229)
+[     734ms] ReferenceError: THREE is not defined
+    at https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:4249:12500
+    at Object.useMemo (https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:3911:101156)
+    at dn.useMemo (https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:17:7331)
+    at jz (https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:4249:12293)
+    at Vt (https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:3911:20387)
+    at Yf (https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:3911:38428)
+    at Hd (https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:3911:48737)
+    at Vo (https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:3911:84400)
+    at Ig (https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:3911:83401)
+    at Ns (https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:3911:83229)
+[    1249ms] [LOG] THREE.WebGLRenderer: Context Lost. @ https://3-d-galery-tau.vercel.app/assets/index-Cq7EfgSD.js:3879

@@ -1,7 +1,7 @@
 import { useRef, useState, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Text, useCursor } from '@react-three/drei'
-import { MathUtils, DoubleSide } from 'three'
+import { MathUtils, DoubleSide, CanvasTexture } from 'three'
 
 const FRAME_W = 2.5
 const FRAME_H = 2.0
@@ -71,7 +71,7 @@ export default function GalleryItem({ quintuplet, position, rotationY, onSelect,
     const ctx = canvas.getContext('2d')
     const kanji = quintuplet.id === 1 ? '一花' : quintuplet.id === 2 ? '二乃' : quintuplet.id === 3 ? '三玖' : quintuplet.id === 4 ? '四葉' : '五珠'
     buildTexture(ctx, 512, 512, quintuplet.color, quintuplet.name, kanji)
-    return new THREE.CanvasTexture(canvas)
+    return new CanvasTexture(canvas)
   }, [quintuplet.color, quintuplet.name, quintuplet.id])
 
   const kanji = quintuplet.id === 1 ? '一花' : quintuplet.id === 2 ? '二乃' : quintuplet.id === 3 ? '三玖' : quintuplet.id === 4 ? '四葉' : '五珠'
