@@ -4,7 +4,6 @@ import { Loader } from '@react-three/drei'
 import Gallery from './components/Gallery'
 import './App.css'
 
-// Nakano Miku theme — all 23 photos as Nakano Miku
 const MIKU_PHOTOS = [
   'image/072203d90f1f0a8035295d89b807b661.jpg',
   'image/09ed7487d4247be8c312d028b745bc6e.jpg',
@@ -43,63 +42,65 @@ const ALL_ITEMS = MIKU_PHOTOS.map((img, idx) => ({
   img,
 }))
 
-const MIKU_ICONS = ['🎵', '🎶', '♪', '♩', '♬']
-
 export default function App() {
   const [selected, setSelected] = useState(null)
   const [loaded, setLoaded] = useState(false)
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
   const canvasRef = useRef(null)
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoaded(true), 1800)
+    const timer = setTimeout(() => setLoaded(true), 2000)
     return () => clearTimeout(timer)
   }, [])
 
-  const kanji = () => '三玖'
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePos({
+        x: (e.clientX / window.innerWidth - 0.5) * 20,
+        y: (e.clientY / window.innerHeight - 0.5) * 20,
+      })
+    }
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
 
   return (
     <div className="app">
-      {/* Floating Music Notes Background */}
-      <div className="music-notes">
-        {MIKU_ICONS.map((icon, i) => (
-          <span
-            key={i}
-            className={`music-note note-${i}`}
-            style={{ '--delay': `${i * 0.7}s`, '--dur': `${6 + i * 1.5}s`, '--x': `${10 + i * 18}%` }}
-          >
-            {icon}
-          </span>
-        ))}
-      </div>
+      {/* Grain texture overlay */}
+      <div className="grain" />
+
+      {/* Vignette */}
+      <div className="vignette" />
 
       {/* Loading Screen */}
       {!loaded && (
         <div className="loading-screen">
-          <div className="logo">
-            <span className="logo-icon">🎵</span>
-            <span className="logo-text">
-              Nakano <em>Miku</em>
-            </span>
+          <div className="loading-content">
+            <div className="loading-logo">
+              <span className="loading-icon">♖</span>
+              <div className="loading-text">
+                <span className="loading-title">Nakano Miku</span>
+                <span className="loading-subtitle">Album Foto</span>
+              </div>
+            </div>
+            <div className="loading-bar-container">
+              <div className="loading-bar">
+                <div className="loading-bar-fill" />
+              </div>
+            </div>
           </div>
-          <div className="loading-bar">
-            <div className="loading-bar-fill" />
-          </div>
-          <p className="loading-sub">中野三玖 · Album Foto 3D</p>
         </div>
       )}
 
       {/* Header */}
       <header className="masthead">
-        <p className="eyebrow">
-          <span className="eyebrow-icon">♪</span>
-          Nakano Miku · Gotoubun no Hanayome
-        </p>
-        <h1>
-          Nakano <em>Miku</em>
-        </h1>
-        <p className="subtitle">
-          <span>♪</span> Album Foto 3D Interaktif <span>♪</span>
-        </p>
+        <div className="masthead-content">
+          <p className="eyebrow">Gotoubun no Hanayome</p>
+          <h1>
+            Nakano <em>Miku</em>
+          </h1>
+          <p className="subtitle">Album Foto 3D</p>
+        </div>
       </header>
 
       {/* 3D Canvas */}
@@ -108,6 +109,10 @@ export default function App() {
         camera={{ position: [0, 1.2, 13], fov: 50 }}
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: false }}
+        style={{
+          transform: `translate(${mousePos.x * 0.02}px, ${mousePos.y * 0.02}px)`,
+          transition: 'transform 0.3s ease-out',
+        }}
       >
         <Suspense fallback={null}>
           <Gallery items={ALL_ITEMS} onSelect={setSelected} />
@@ -124,61 +129,53 @@ export default function App() {
 
       {/* Hint */}
       <p className="hint">
-        <span className="hint-icon">♪</span>
+        <span className="hint-dot" />
         seret untuk menjelajah &nbsp;&nbsp;gulir untuk mendekat &nbsp;&nbsp;klik bingkai
       </p>
 
-      {/* Side Navigation Dots */}
+      {/* Side Navigation */}
       <nav className="nav-dots" aria-label="Quick navigation">
         {ALL_ITEMS.map((q, idx) => (
-          <div
+          <button
             key={q.id}
             className={`nav-dot ${selected?.id === q.id ? 'active' : ''}`}
-            style={{ borderColor: selected?.id === q.id ? q.color : undefined }}
             onClick={() => setSelected(q)}
             aria-label={`Lihat foto ${idx + 1}`}
-          />
+            title={`${q.name} — ${idx + 1}`}
+          >
+            <span className="nav-dot-inner" />
+          </button>
         ))}
       </nav>
-
-      {/* Music note indicator on active dot */}
-      {selected && (
-        <div className="active-indicator" style={{ color: selected.color }}>
-          {MIKU_ICONS[0]}
-        </div>
-      )}
 
       {/* Modal — Album Page */}
       {selected && (
         <div className="modal-overlay" onClick={() => setSelected(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-deco-bar">
-              <span className="deco-symbol">{selected.symbol}</span>
-              <span className="deco-line" />
-              <span className="deco-note">♪</span>
+            <div className="modal-image-col">
+              <div className="modal-image-wrap">
+                <img src={selected.img} alt={selected.title} loading="lazy" />
+              </div>
             </div>
-            <div className="modal-image">
-              <img src={selected.img} alt={selected.title} />
-              <div
-                className="modal-image-overlay"
-                style={{ background: `radial-gradient(ellipse at 30% 20%, ${selected.color}15, transparent 70%)` }}
-              />
-            </div>
-            <div className="modal-info">
+            <div className="modal-info-col">
               <button className="close-btn" onClick={() => setSelected(null)} aria-label="Tutup">
-                ✕
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 1L13 13M1 13L13 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                </svg>
               </button>
-              <span className="modal-plate" style={{ color: selected.color }}>
-                {selected.symbol} Nakano {kanji()}
-              </span>
-              <h2 style={{ color: selected.color }}>{selected.title}</h2>
+
+              <div className="modal-meta">
+                <span className="modal-tag">Album</span>
+                <span className="modal-sep">·</span>
+                <span className="modal-count">{ALL_ITEMS.findIndex(i => i.id === selected.id) + 1} / {ALL_ITEMS.length}</span>
+              </div>
+
+              <h2 className="modal-title">{selected.title}</h2>
               <p className="modal-detail">{selected.detail}</p>
-              <blockquote className="modal-quote" style={{ borderColor: selected.color, background: `linear-gradient(135deg, ${selected.color}08, transparent)` }}>
-                {selected.quote}
-              </blockquote>
-              <div className="modal-footer">
-                <span className="footer-note">🎵 Nakano Miku · 中野三玖</span>
-                <span className="footer-miku">初音ミク風</span>
+              <blockquote className="modal-quote">{selected.quote}</blockquote>
+
+              <div className="modal-actions">
+                <button className="modal-btn" onClick={() => setSelected(null)}>Kembali</button>
               </div>
             </div>
           </div>
