@@ -1,0 +1,38 @@
+- generic [ref=e3]:
+  - generic [ref=e6]:
+    - generic [ref=e7]: ♖
+    - generic [ref=e8]:
+      - generic [ref=e9]: Nakano Miku
+      - generic [ref=e10]: Album Foto
+  - banner:
+    - generic:
+      - paragraph: Gotoubun no Hanayome
+      - heading "Nakano Miku" [level=1]:
+        - text: Nakano
+        - emphasis: Miku
+      - paragraph: Album Foto 3D
+  - paragraph: seret untuk menjelajah gulir untuk mendekat klik bingkai
+  - navigation "Quick navigation":
+    - button "Lihat foto 1" [ref=e17] [cursor=pointer]
+    - button "Lihat foto 2" [ref=e18] [cursor=pointer]
+    - button "Lihat foto 3" [ref=e19] [cursor=pointer]
+    - button "Lihat foto 4" [ref=e20] [cursor=pointer]
+    - button "Lihat foto 5" [ref=e21] [cursor=pointer]
+    - button "Lihat foto 6" [ref=e22] [cursor=pointer]
+    - button "Lihat foto 7" [ref=e23] [cursor=pointer]
+    - button "Lihat foto 8" [ref=e24] [cursor=pointer]
+    - button "Lihat foto 9" [ref=e25] [cursor=pointer]
+    - button "Lihat foto 10" [ref=e26] [cursor=pointer]
+    - button "Lihat foto 11" [ref=e27] [cursor=pointer]
+    - button "Lihat foto 12" [ref=e28] [cursor=pointer]
+    - button "Lihat foto 13" [ref=e29] [cursor=pointer]
+    - button "Lihat foto 14" [ref=e30] [cursor=pointer]
+    - button "Lihat foto 15" [ref=e31] [cursor=pointer]
+    - button "Lihat foto 16" [ref=e32] [cursor=pointer]
+    - button "Lihat foto 17" [ref=e33] [cursor=pointer]
+    - button "Lihat foto 18" [ref=e34] [cursor=pointer]
+    - button "Lihat foto 19" [ref=e35] [cursor=pointer]
+    - button "Lihat foto 20" [ref=e36] [cursor=pointer]
+    - button "Lihat foto 21" [ref=e37] [cursor=pointer]
+    - button "Lihat foto 22" [ref=e38] [cursor=pointer]
+    - button "Lihat foto 23" [ref=e39] [cursor=pointer]
