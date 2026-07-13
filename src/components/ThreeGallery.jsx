@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import './ThreeGallery.css'
@@ -34,11 +34,48 @@ export default function ThreeGallery({ onSelectPhoto }) {
   const sceneRef = useRef(null)
   const [selectedId, setSelectedId] = useState(null)
   const selectedRef = useRef(null)
+  const [photoIndex, setPhotoIndex] = useState(0)
+
+  const selectPhoto = useCallback((idx) => {
+    const id = `miku-${idx + 1}`
+    setSelectedId(id)
+    setPhotoIndex(idx)
+    if (sceneRef.current) {
+      const found = sceneRef.current.photoGroups.find(p => p.data.id === id)
+      if (found) {
+        selectedRef.current = found
+        if (onSelectPhoto) onSelectPhoto(found.data)
+      }
+    }
+  }, [onSelectPhoto])
+
+  const goNext = useCallback(() => {
+    const next = (photoIndex + 1) % MIKU_PHOTOS.length
+    selectPhoto(next)
+  }, [photoIndex, selectPhoto])
+
+  const goPrev = useCallback(() => {
+    const prev = (photoIndex - 1 + MIKU_PHOTOS.length) % MIKU_PHOTOS.length
+    selectPhoto(prev)
+  }, [photoIndex, selectPhoto])
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === 'ArrowRight') goNext()
+      if (e.key === 'ArrowLeft') goPrev()
+      if (e.key === 'Escape') {
+        selectedRef.current = null
+        setSelectedId(null)
+        if (onSelectPhoto) onSelectPhoto(null)
+      }
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [goNext, goPrev, onSelectPhoto])
 
   useEffect(() => {
     if (!containerRef.current) return
 
-    // ===== Setup =====
     const container = containerRef.current
     const w = container.clientWidth
     const h = container.clientHeight
@@ -64,7 +101,6 @@ export default function ThreeGallery({ onSelectPhoto }) {
     renderer.outputColorSpace = THREE.SRGBColorSpace
     container.appendChild(renderer.domElement)
 
-    // ===== Controls =====
     const controls = new OrbitControls(camera, renderer.domElement)
     controls.enablePan = false
     controls.minDistance = 6
@@ -77,12 +113,10 @@ export default function ThreeGallery({ onSelectPhoto }) {
     controls.enableDamping = true
     controls.target.set(0, 0.6, 0)
 
-    // ===== Lights =====
-    // Ambient glow
+    // Lights
     const ambient = new THREE.AmbientLight(0x0a2025, 0.35)
     scene.add(ambient)
 
-    // Main teal overhead
     const mainLight = new THREE.DirectionalLight(0x2ec4b6, 1.8)
     mainLight.position.set(0, 10, 4)
     mainLight.castShadow = true
@@ -97,27 +131,23 @@ export default function ThreeGallery({ onSelectPhoto }) {
     mainLight.shadow.camera.far = 25
     scene.add(mainLight)
 
-    // Fill cyan
     const fillLight = new THREE.DirectionalLight(0x3de2d1, 0.5)
     fillLight.position.set(-4, 3, -5)
     scene.add(fillLight)
 
-    // Warm back
     const warmLight = new THREE.DirectionalLight(0xf0c27f, 0.3)
     warmLight.position.set(3, 1, -6)
     scene.add(warmLight)
 
-    // Pink accent
     const accentLight = new THREE.PointLight(0xff6b8a, 0.3, 15)
     accentLight.position.set(-3, 2, 5)
     scene.add(accentLight)
 
-    // Rim from below
     const rimLight = new THREE.PointLight(0x6a9a9a, 0.15, 10)
     rimLight.position.set(0, -3, 2)
     scene.add(rimLight)
 
-    // ===== Floor (reflective) =====
+    // Floor
     const floorGeo = new THREE.CircleGeometry(22, 64)
     const floorMat = new THREE.MeshStandardMaterial({
       color: 0x050d11,
@@ -131,7 +161,7 @@ export default function ThreeGallery({ onSelectPhoto }) {
     floor.receiveShadow = true
     scene.add(floor)
 
-    // ===== Crystal =====
+    // Crystal
     const crystalMat = new THREE.MeshPhysicalMaterial({
       color: 0x2ec4b6,
       transparent: true,
@@ -144,7 +174,6 @@ export default function ThreeGallery({ onSelectPhoto }) {
     crystal.position.set(0, 1, 0)
     scene.add(crystal)
 
-    // Inner glow sphere
     const innerMat = new THREE.MeshBasicMaterial({
       color: 0x3de2d1,
       transparent: true,
@@ -154,7 +183,6 @@ export default function ThreeGallery({ onSelectPhoto }) {
     innerSphere.position.set(0, 1, 0)
     scene.add(innerSphere)
 
-    // Orbiting ring
     const ringMat = new THREE.MeshBasicMaterial({
       color: 0x3de2d1,
       transparent: true,
@@ -165,7 +193,6 @@ export default function ThreeGallery({ onSelectPhoto }) {
     ring.position.set(0, 1, 0)
     scene.add(ring)
 
-    // Second ring perpendicular
     const ring2Mat = new THREE.MeshBasicMaterial({
       color: 0xa8f0e8,
       transparent: true,
@@ -176,7 +203,7 @@ export default function ThreeGallery({ onSelectPhoto }) {
     ring2.position.set(0, 1, 0)
     scene.add(ring2)
 
-    // ===== Petal system =====
+    // Petals
     const petalColors = [0x2ec4b6, 0x3de2d1, 0xa8f0e8, 0x7edcd3, 0x5ee8db, 0x6fd8c5]
     const petals = []
     const petalGeo = new THREE.PlaneGeometry(0.1, 0.14)
@@ -207,7 +234,7 @@ export default function ThreeGallery({ onSelectPhoto }) {
       })
     }
 
-    // ===== Floating particles =====
+    // Particles
     const particleCount = 300
     const particleGeo = new THREE.BufferGeometry()
     const particlePos = new Float32Array(particleCount * 3)
@@ -226,7 +253,7 @@ export default function ThreeGallery({ onSelectPhoto }) {
     particles.position.y = 2
     scene.add(particles)
 
-    // ===== Photo gallery =====
+    // Gallery
     const radius = 9.5
     const count = MIKU_PHOTOS.length
     const photoGroups = []
@@ -282,7 +309,6 @@ export default function ThreeGallery({ onSelectPhoto }) {
       group.rotation.y = angle + Math.PI
       group.userData = { angle, idx }
 
-      // Frame with shadow
       const frameMesh = new THREE.Mesh(frameGeo, new THREE.MeshStandardMaterial({
         color: 0xe8f0ee,
         roughness: 0.8,
@@ -292,7 +318,6 @@ export default function ThreeGallery({ onSelectPhoto }) {
       frameMesh.castShadow = true
       group.add(frameMesh)
 
-      // Glow halo
       const glowMat = new THREE.MeshBasicMaterial({
         color: 0x2ec0b5,
         transparent: true,
@@ -308,7 +333,6 @@ export default function ThreeGallery({ onSelectPhoto }) {
       glow.position.set(0, 0, -0.08)
       group.add(glow)
 
-      // Image
       const imgMat = new THREE.MeshBasicMaterial({
         map: fallbackTex,
         toneMapped: false,
@@ -317,7 +341,6 @@ export default function ThreeGallery({ onSelectPhoto }) {
       imgMesh.position.set(0, 0, 0.01)
       group.add(imgMesh)
 
-      // Load actual texture
       textureLoader.load(
         imgPath,
         (tex) => {
@@ -329,7 +352,6 @@ export default function ThreeGallery({ onSelectPhoto }) {
         () => {}
       )
 
-      // Rivets
       rivetPositions.forEach(([cx, cy]) => {
         const r = new THREE.Mesh(rivetGeo, rivetMat.clone())
         r.position.set(cx, cy, -0.02)
@@ -339,7 +361,6 @@ export default function ThreeGallery({ onSelectPhoto }) {
 
       scene.add(group)
 
-      // Glow ring on floor
       const ringGlow = new THREE.Mesh(
         new THREE.RingGeometry(1.4, 1.45, 48),
         new THREE.MeshBasicMaterial({
@@ -372,7 +393,7 @@ export default function ThreeGallery({ onSelectPhoto }) {
       })
     })
 
-    // ===== Raycaster =====
+    // Raycaster
     const raycaster = new THREE.Raycaster()
     const pointer = new THREE.Vector2(-999, -999)
     let hoveredGroup = null
@@ -404,14 +425,13 @@ export default function ThreeGallery({ onSelectPhoto }) {
         const hit = intersects[0].object
         const found = photoGroups.find(p => p.imgMesh === hit)
         if (found) {
-          selectedRef.current = found
-          setSelectedId(found.data.id)
-          if (onSelectPhoto) onSelectPhoto(found.data)
+          const idx = found.data.id.replace('miku-', '') - 1
+          selectPhoto(idx)
         }
       } else {
-        // Click on empty space — deselect
         selectedRef.current = null
         setSelectedId(null)
+        if (onSelectPhoto) onSelectPhoto(null)
       }
     }
 
@@ -424,7 +444,7 @@ export default function ThreeGallery({ onSelectPhoto }) {
     renderer.domElement.addEventListener('pointerup', onPointerUp)
     renderer.domElement.addEventListener('pointermove', onPointerMove)
 
-    // ===== Resize =====
+    // Resize
     const onResize = () => {
       const cw = container.clientWidth
       const ch = container.clientHeight
@@ -434,17 +454,14 @@ export default function ThreeGallery({ onSelectPhoto }) {
     }
     window.addEventListener('resize', onResize)
 
-    // ===== Animation loop =====
+    // Animation
     const clock = new THREE.Clock()
-
-    // Naive initial rotation offset
     const initialRotations = photoGroups.map(() => Math.random() * Math.PI * 2)
 
     function animate() {
       requestAnimationFrame(animate)
       const t = clock.getElapsedTime()
 
-      // Crystal
       crystal.rotation.y = t * 0.4
       crystal.rotation.x = Math.sin(t * 0.3) * 0.15
       crystal.position.y = Math.sin(t * 0.8) * 0.12 + 1
@@ -454,10 +471,8 @@ export default function ThreeGallery({ onSelectPhoto }) {
       ring2.rotation.x = Math.PI / 1.5 + Math.sin(t * 0.3 + 1) * 0.1
       ring2.rotation.y = t * 0.15
 
-      // Particles
       particles.rotation.y = t * 0.008
 
-      // Petals
       petals.forEach((p) => {
         const wind = Math.sin(t * 0.5 + p.windOffset)
         p.mesh.position.y -= p.speed * 0.016
@@ -474,7 +489,6 @@ export default function ThreeGallery({ onSelectPhoto }) {
         }
       })
 
-      // Photo groups
       raycaster.setFromCamera(pointer, camera)
       const allMeshes = photoGroups.map(p => p.imgMesh)
       const intersects = raycaster.intersectObjects(allMeshes)
@@ -484,19 +498,15 @@ export default function ThreeGallery({ onSelectPhoto }) {
         const floatY = Math.sin(t * 0.6 + rot) * 0.08
         p.group.position.y = floatY
 
-        // Glow ring pulse
         p.ringGlow.material.opacity = 0.04 + Math.sin(t * 1.5 + i * 0.5) * 0.03
         p.ringGlow.scale.setScalar(1 + Math.sin(t * 1.2 + i * 0.3) * 0.03)
 
-        // Base glow
         p.glow.material.opacity = 0.08 + Math.sin(t * 2 + i * 0.4) * 0.04
 
-        // Scale lerp
         const targetScale = (hoveredGroup === p || selectedRef.current === p) ? 1.08 : 1
         p.group.scale.setScalar(THREE.MathUtils.lerp(p.group.scale.x, targetScale, 0.08))
       })
 
-      // Hover
       if (intersects.length > 0) {
         const hit = intersects[0].object
         const found = photoGroups.find(p => p.imgMesh === hit)
@@ -509,7 +519,6 @@ export default function ThreeGallery({ onSelectPhoto }) {
         hoveredGroup = null
       }
 
-      // Selected highlight
       if (selectedRef.current) {
         const s = selectedRef.current
         s.glow.material.opacity = 0.15 + Math.sin(t * 3) * 0.05
@@ -525,7 +534,6 @@ export default function ThreeGallery({ onSelectPhoto }) {
 
     animate()
 
-    // ===== Cleanup =====
     return () => {
       window.removeEventListener('resize', onResize)
       renderer.dispose()
@@ -533,18 +541,7 @@ export default function ThreeGallery({ onSelectPhoto }) {
         container.removeChild(renderer.domElement)
       }
     }
-  }, [])
-
-  // Handle selection from outside (nav dots)
-  useEffect(() => {
-    if (selectedId && sceneRef.current) {
-      const found = sceneRef.current.photoGroups.find(p => p.data.id === selectedId)
-      if (found) {
-        selectedRef.current = found
-        if (onSelectPhoto) onSelectPhoto(found.data)
-      }
-    }
-  }, [selectedId])
+  }, [selectPhoto])
 
   return (
     <div className="three-gallery-container" ref={containerRef}>
@@ -553,11 +550,18 @@ export default function ThreeGallery({ onSelectPhoto }) {
           <button
             key={idx}
             className={`nav-dot-three ${selectedId === `miku-${idx + 1}` ? 'active' : ''}`}
-            onClick={() => setSelectedId(`miku-${idx + 1}`)}
+            onClick={() => selectPhoto(idx)}
             aria-label={`Foto ${idx + 1}`}
           />
         ))}
       </nav>
+
+      {selectedId && (
+        <div className="floating-nav">
+          <button className="float-btn prev" onClick={goPrev} aria-label="Previous">&#10094;</button>
+          <button className="float-btn next" onClick={goNext} aria-label="Next">&#10095;</button>
+        </div>
+      )}
     </div>
   )
 }
